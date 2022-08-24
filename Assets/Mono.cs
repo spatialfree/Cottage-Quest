@@ -14,6 +14,12 @@ public class Mono : MonoBehaviour {
   public Mesh quad;
   public Material mat;
 
+  [Header("New")]
+  public float viewAngle = 35;
+  public Texture wallTex;
+  public Vector3 wallPos;
+  public Vector3 wallScale;
+
   void Awake() {
     Inst = this;
   }
@@ -25,11 +31,23 @@ public class Mono : MonoBehaviour {
   void Update() {
     story.Update();
     player.Update();
-    Camera.main.transform.position = player.pos + new Vector3(0, 16, -24);
 
 
+
+    MaterialPropertyBlock props = new MaterialPropertyBlock();
+    props.SetTexture("_MainTex", wallTex);
+    props.SetFloat("_TileX", wallScale.x);
+    matrix.SetTRS(wallPos, Quaternion.identity, wallScale);
+    Graphics.DrawMesh(Mono.Inst.quad, matrix, Mono.Inst.mat, 0, Camera.main, 0, props, false, false, false);
+
+
+
+    Transform cam = Camera.main.transform;
+    cam.rotation = Quaternion.Euler(viewAngle, 0, 0);
+    cam.position = player.pos + new Vector3(0,0,0) + cam.rotation * new Vector3(0, 0, -24);
     player.Render();
   }
+  Matrix4x4 matrix = new Matrix4x4();
 }
 
 [Serializable]
