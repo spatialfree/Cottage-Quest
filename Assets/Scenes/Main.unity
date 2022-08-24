@@ -1232,6 +1232,8 @@ MonoBehaviour:
     texture: {fileID: 2800000, guid: 886e99125d13309428f3d43c992b2a7c, type: 3}
   quad: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   mat: {fileID: 2100000, guid: 3aeaa203cfe45a14c807676c5d5a5ef2, type: 2}
+  design: {fileID: 11400000, guid: 9beb8f68294de00419535ecb2f3ed22b, type: 2}
+  test: 0
   pixelsPerUnit: 24
   viewAngle: 35
   wallTex: {fileID: 2800000, guid: ccdaa7e69e83887449b3b9368157e6b1, type: 3}

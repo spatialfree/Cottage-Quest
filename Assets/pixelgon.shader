@@ -1,6 +1,3 @@
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-// basic unlit vertex frag unity shader
 Shader "custom/pixelgon"
 {
   Properties

@@ -1,0 +1,8 @@
+mono:
+  pixelsPerMeter = 24
+  viewAngle = 24
+  test = 10.01
+
+player:
+  speed = 2
+  name = player

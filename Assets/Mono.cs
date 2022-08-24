@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -14,9 +15,7 @@ public class Mono : MonoBehaviour {
   public Mesh quad;
   public Material mat;
 
-  [Header("New")]
-  public float pixelsPerUnit = 24;
-  public float viewAngle = 35;
+  [Header("New References")]
   public Texture wallTex;
   public Vector3 wallPos;
   public Vector3 wallScale;
@@ -29,10 +28,17 @@ public class Mono : MonoBehaviour {
     
   }
 
+  public bool refresh = true;
   void Update() {
+    pixelsPerMeter = pixelsPerMeter.Sync("mono.pixelsPerMeter");
+    viewAngle      = viewAngle.Sync("mono.viewAngle");
+    test           = test.Sync("mono.test");
+
+    refresh = Input.GetMouseButtonDown(0); // just for testing? player editable?
+    
+    
     story.Update();
     player.Update();
-
 
 
     MaterialPropertyBlock props = new MaterialPropertyBlock();
@@ -49,6 +55,11 @@ public class Mono : MonoBehaviour {
     player.Render();
   }
   Matrix4x4 matrix = new Matrix4x4();
+
+  [Header("New Design Vars")]
+  [ShowOnly] public float pixelsPerMeter;
+  [ShowOnly] public float viewAngle;
+  [ShowOnly] public float test;
 }
 
 [Serializable]
@@ -98,26 +109,100 @@ public class Player {
 
 
     pos += input * speed * Time.deltaTime;
+
+
+    name  = name.Sync("player.name");
+    speed = speed.Sync("player.speed");
   }
 
-  public string name;
-  float speed = 3f;
+  [ShowOnly] public string name;
+  [ShowOnly] public float speed;
 
 
 
   public void Render() {
-    MaterialPropertyBlock props = new MaterialPropertyBlock();
-    props.SetTexture("_MainTex", texture);
+    
+    
+    
     // scale based on texture size
-    matrix.SetTRS(
-      pos + Vector3.up * texture.height / Mono.Inst.pixelsPerUnit / 2, 
-      Quaternion.identity,
-      new Vector3(texture.width / Mono.Inst.pixelsPerUnit, texture.height / Mono.Inst.pixelsPerUnit, 1)
+    texture.Pixelgon(
+      pos + Vector3.up * texture.height / Mono.Inst.pixelsPerMeter / 2, 
+      new Vector3(texture.width / Mono.Inst.pixelsPerMeter, texture.height / Mono.Inst.pixelsPerMeter, 1)
     );
+  }
+  
+  public Texture texture;
+}
+
+
+public static class Tools {
+
+
+  static Matrix4x4 matrix = new Matrix4x4();
+  static MaterialPropertyBlock props = new MaterialPropertyBlock();
+  public static void Pixelgon(this Texture tex, Vector3 pos, Vector3 scale) {
+    matrix.SetTRS(pos, Quaternion.identity, scale);
+    props.SetTexture("_MainTex", tex);
     Graphics.DrawMesh(Mono.Inst.quad, matrix, Mono.Inst.mat, 0, Camera.main, 0, props, false, false, false);
   }
-  Matrix4x4 matrix = new Matrix4x4();
-  public Texture texture;
+}
+
+[Serializable]
+public static class Design {
+  // read local design variables from file and automatically update them
+
+  public static float Sync(this float value, string name) {
+    if (!Mono.Inst.refresh) { return value; }
+
+    string str = Find(name);
+    if (str != "") {
+      return float.Parse(str);
+    }
+    
+    return Mathf.Sin(Time.time * 3f);
+  }
+
+  public static string Sync(this string value, string name) {
+    if (!Mono.Inst.refresh) { return value; }
+
+    string str = Find(name);
+    if (str != "") {
+      return str;
+    }
+    
+    // random char
+    return "" + (char)Random.Range(32, 126) + (char)Random.Range(32, 126) + (char)Random.Range(32, 126);
+  }
+
+  public static string Find(string name) {
+    string classStr = name.Split('.')[0];
+    string varStr = name.Split('.')[1];
+    string path = Application.dataPath + "/mono.design";
+    if (File.Exists(path))
+    {
+      string currentClass = "";
+      string[] lines = File.ReadAllLines(path);
+      foreach (string line in lines)
+      {
+        if (line.Contains(":"))
+        {
+          currentClass = line.Split(':')[0];
+        }
+
+        if (currentClass == classStr)
+        {
+          string[] parts = line.Split('=');
+
+          if (parts[0].Trim() == varStr)
+          {
+            return parts[1].Trim();
+          }
+        }
+      }
+    }
+
+    return "";
+  }
 }
 
 
