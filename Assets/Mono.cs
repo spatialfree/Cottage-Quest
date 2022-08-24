@@ -30,31 +30,27 @@ public class Mono : MonoBehaviour {
 
   public bool refresh = true;
   void Update() {
+    if (!refresh) {
+      story.Update();
+      player.Update();
+
+
+      wallTex.Pixelgon(wallPos, wallScale, wallScale.x);
+
+
+      Transform cam = Camera.main.transform;
+      cam.rotation = Quaternion.Euler(viewAngle, 0, 0);
+      cam.position = player.pos + new Vector3(0,0,0) + cam.rotation * new Vector3(0, 0, -24);
+      player.Render();
+    }
+    
+
     pixelsPerMeter = pixelsPerMeter.Sync("mono.pixelsPerMeter");
     viewAngle      = viewAngle.Sync("mono.viewAngle");
     test           = test.Sync("mono.test");
 
     refresh = Input.GetMouseButtonDown(0); // just for testing? player editable?
-    
-    
-    story.Update();
-    player.Update();
-
-
-    MaterialPropertyBlock props = new MaterialPropertyBlock();
-    props.SetTexture("_MainTex", wallTex);
-    props.SetFloat("_TileX", wallScale.x);
-    matrix.SetTRS(wallPos, Quaternion.identity, wallScale);
-    Graphics.DrawMesh(Mono.Inst.quad, matrix, Mono.Inst.mat, 0, Camera.main, 0, props, false, false, false);
-
-
-
-    Transform cam = Camera.main.transform;
-    cam.rotation = Quaternion.Euler(viewAngle, 0, 0);
-    cam.position = player.pos + new Vector3(0,0,0) + cam.rotation * new Vector3(0, 0, -24);
-    player.Render();
   }
-  Matrix4x4 matrix = new Matrix4x4();
 
   [Header("New Design Vars")]
   [ShowOnly] public float pixelsPerMeter;
@@ -122,13 +118,8 @@ public class Player {
 
   public void Render() {
     
-    
-    
     // scale based on texture size
-    texture.Pixelgon(
-      pos + Vector3.up * texture.height / Mono.Inst.pixelsPerMeter / 2, 
-      new Vector3(texture.width / Mono.Inst.pixelsPerMeter, texture.height / Mono.Inst.pixelsPerMeter, 1)
-    );
+    texture.Pixelgon(pos, Vector3.one);
   }
   
   public Texture texture;
@@ -140,9 +131,17 @@ public static class Tools {
 
   static Matrix4x4 matrix = new Matrix4x4();
   static MaterialPropertyBlock props = new MaterialPropertyBlock();
-  public static void Pixelgon(this Texture tex, Vector3 pos, Vector3 scale) {
-    matrix.SetTRS(pos, Quaternion.identity, scale);
+  public static void Pixelgon(this Texture tex, Vector3 pos, Vector3 scale, float tileX = 1) {
+    float ppm = Mono.Inst.pixelsPerMeter;
+
+    scale.Scale(new Vector3(tex.width / ppm, tex.height / ppm, 1));
+    matrix.SetTRS(
+      pos + Vector3.up * tex.height / ppm / 2,
+      Quaternion.identity, 
+      scale
+    );
     props.SetTexture("_MainTex", tex);
+    props.SetFloat("_TileX", tileX);
     Graphics.DrawMesh(Mono.Inst.quad, matrix, Mono.Inst.mat, 0, Camera.main, 0, props, false, false, false);
   }
 }
