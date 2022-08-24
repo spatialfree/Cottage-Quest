@@ -11,12 +11,6 @@ Shader "custom/pixelgon"
   SubShader
   {
     Tags { "Queue" = "Geometry" }
-
-    // Cull Off
-    // ZTest Always
-    // ZWrite Off
-    // Blend SrcAlpha
-    // ColorMask RGB
     
     Pass
     {
@@ -52,7 +46,9 @@ Shader "custom/pixelgon"
       }
       float4 frag(v2f i) : SV_Target
       {
-        return i.color * tex2D(_MainTex, float2(i.uv.x * _TileX, i.uv.y));
+        float4 t = tex2D(_MainTex, float2(i.uv.x * _TileX, i.uv.y));
+        clip(t.a - 0.5);
+        return i.color * t;
       }
       ENDCG
     }

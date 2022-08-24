@@ -15,6 +15,7 @@ public class Mono : MonoBehaviour {
   public Material mat;
 
   [Header("New")]
+  public float pixelsPerUnit = 24;
   public float viewAngle = 35;
   public Texture wallTex;
   public Vector3 wallPos;
@@ -107,8 +108,15 @@ public class Player {
   public void Render() {
     MaterialPropertyBlock props = new MaterialPropertyBlock();
     props.SetTexture("_MainTex", texture);
-    Graphics.DrawMesh(Mono.Inst.quad, pos + Vector3.up * 0.5f, Quaternion.identity, Mono.Inst.mat, 0, Camera.main, 0, props);
+    // scale based on texture size
+    matrix.SetTRS(
+      pos + Vector3.up * texture.height / Mono.Inst.pixelsPerUnit / 2, 
+      Quaternion.identity,
+      new Vector3(texture.width / Mono.Inst.pixelsPerUnit, texture.height / Mono.Inst.pixelsPerUnit, 1)
+    );
+    Graphics.DrawMesh(Mono.Inst.quad, matrix, Mono.Inst.mat, 0, Camera.main, 0, props, false, false, false);
   }
+  Matrix4x4 matrix = new Matrix4x4();
   public Texture texture;
 }
 
