@@ -22,40 +22,43 @@ public class Mono : MonoBehaviour {
 
   void Awake() {
     Inst = this;
+    sync = true;
   }
 
   void Start() {
     
   }
 
-  public bool refresh = true;
+  bool firstFrame = true;
+  public bool sync;
   void Update() {
-    if (!refresh) {
-      story.Update();
-      player.Update();
+    sync = firstFrame || Input.GetMouseButton(0);
+    Sync();
+
+    story.Update();
+    player.Update();
 
 
-      wallTex.Pixelgon(wallPos, wallScale, wallScale.x);
+    wallTex.Pixelgon(wallPos, wallScale, wallScale.x);
 
 
-      Transform cam = Camera.main.transform;
-      cam.rotation = Quaternion.Euler(viewAngle, 0, 0);
-      cam.position = player.pos + new Vector3(0,0,0) + cam.rotation * new Vector3(0, 0, -24);
-      player.Render();
-    }
-    
+    Transform cam = Camera.main.transform;
+    cam.rotation = Quaternion.Euler(viewAngle, 0, 0);
+    cam.position = player.pos + new Vector3(0,0,0) + cam.rotation * new Vector3(0, 0, -24);
+    player.Render();
 
-    pixelsPerMeter = pixelsPerMeter.Sync("mono.pixelsPerMeter");
-    viewAngle      = viewAngle.Sync("mono.viewAngle");
-    test           = test.Sync("mono.test");
-
-    refresh = Input.GetMouseButtonDown(0); // just for testing? player editable?
+    firstFrame = false;
   }
 
   [Header("New Design Vars")]
-  [ShowOnly] public float pixelsPerMeter;
-  [ShowOnly] public float viewAngle;
-  [ShowOnly] public float test;
+  [ShowOnly] public float pixelsPerMeter = 24;
+  [ShowOnly] public float viewAngle = 28;
+  [ShowOnly] public float test = 0;
+  void Sync() {
+    pixelsPerMeter = pixelsPerMeter.Sync("Mono.pixelsPerMeter");
+    viewAngle      = viewAngle.Sync("Mono.viewAngle");
+    test           = test.Sync("Mono.test");
+  }
 }
 
 [Serializable]
@@ -97,6 +100,7 @@ public class Player {
   public Vector3 pos;
 
   public void Update() {
+    Sync();
     Vector3 input = new Vector3(
       Input.GetAxisRaw("Horizontal"),
       0,
@@ -105,14 +109,15 @@ public class Player {
 
 
     pos += input * speed * Time.deltaTime;
-
-
-    name  = name.Sync("player.name");
-    speed = speed.Sync("player.speed");
   }
 
-  [ShowOnly] public string name;
-  [ShowOnly] public float speed;
+
+  [ShowOnly] public string name = "PLAYER";
+  [ShowOnly] public float speed = 3.333f;
+  void Sync() {
+    name  = name.Sync("Player.name");
+    speed = speed.Sync("Player.speed");
+  }
 
 
 
@@ -151,18 +156,18 @@ public static class Design {
   // read local design variables from file and automatically update them
 
   public static float Sync(this float value, string name) {
-    if (!Mono.Inst.refresh) { return value; }
+    if (!Mono.Inst.sync) { return value; }
 
     string str = Find(name);
     if (str != "") {
       return float.Parse(str);
     }
     
-    return Mathf.Sin(Time.time * 3f);
+    return value + Mathf.Sin(Time.time * 3f);
   }
 
   public static string Sync(this string value, string name) {
-    if (!Mono.Inst.refresh) { return value; }
+    if (!Mono.Inst.sync) { return value; }
 
     string str = Find(name);
     if (str != "") {
@@ -170,31 +175,42 @@ public static class Design {
     }
     
     // random char
-    return "" + (char)Random.Range(32, 126) + (char)Random.Range(32, 126) + (char)Random.Range(32, 126);
+    return "" + 
+      (char)Random.Range(32, 126) + (char)Random.Range(32, 126) + 
+      (char)Random.Range(32, 126) + (char)Random.Range(32, 126) + 
+      (char)Random.Range(32, 126) + (char)Random.Range(32, 126);
   }
 
   public static string Find(string name) {
     string classStr = name.Split('.')[0];
     string varStr = name.Split('.')[1];
-    string path = Application.dataPath + "/mono.design";
-    if (File.Exists(path))
-    {
+    string path = Application.dataPath + "/Mono.cs";
+    if (File.Exists(path)) {
       string currentClass = "";
       string[] lines = File.ReadAllLines(path);
-      foreach (string line in lines)
-      {
-        if (line.Contains(":"))
-        {
-          currentClass = line.Split(':')[0];
+      foreach (string line in lines) {
+        if (line.Contains("class")) {
+          // word after class
+          string[] words = line.Split(' ');
+          for (int i = 0; i < words.Length; i++) {
+            if (words[i] == "class") {
+              currentClass = words[i + 1];
+            }
+          }
         }
 
-        if (currentClass == classStr)
-        {
-          string[] parts = line.Split('=');
-
-          if (parts[0].Trim() == varStr)
-          {
-            return parts[1].Trim();
+        if (currentClass == classStr) {
+          if (line.Contains("ShowOnly") && line.Contains(varStr)) {
+            string[] words = line.Split(' ');
+            for (int i = 0; i < words.Length; i++) {
+              if (words[i].Trim() == "=") {
+                string w = words[i + 1];
+                w = w.Replace(';', ' ');
+                w = w.Replace('"', ' ');
+                w = w.Replace('f', ' ');
+                return w.Trim();
+              }
+            }
           }
         }
       }
