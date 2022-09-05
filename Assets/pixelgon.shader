@@ -4,6 +4,9 @@ Shader "custom/pixelgon"
   {
     _MainTex ("Main Texture", 2D) = ""
     _TileX ("Tile X", Float) = 1
+    _TileY ("Tile Y", Float) = 1
+    _OffsetX ("Offset X", Float) = 0
+    _OffsetY ("Offset Y", Float) = 0
   }
   SubShader
   {
@@ -32,6 +35,9 @@ Shader "custom/pixelgon"
 
       sampler2D _MainTex;
       float _TileX;
+      float _TileY;
+      float _OffsetX;
+      float _OffsetY;
 
       v2f vert(appdata v)
       {
@@ -43,7 +49,12 @@ Shader "custom/pixelgon"
       }
       float4 frag(v2f i) : SV_Target
       {
-        float4 t = tex2D(_MainTex, float2(i.uv.x * _TileX, i.uv.y));
+        float4 t = tex2D(_MainTex, 
+          float2(
+            _OffsetX + (i.uv.x * _TileX), 
+            _OffsetY + (i.uv.y * _TileY)
+          )
+        );
         clip(t.a - 0.5);
         return i.color * t;
       }

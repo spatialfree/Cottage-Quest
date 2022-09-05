@@ -11,7 +11,7 @@ public static class Design {
 
     string str = Find(name);
     if (str != "") {
-      return float.Parse(str);
+      return float.Parse(str.Replace('f', ' ').Trim());
     }
     
     return value + Mathf.Sin(Time.time * 3f);
@@ -33,8 +33,8 @@ public static class Design {
   }
 
   public static string Find(string name) {
-    string classStr = name.Split('.')[0];
-    string varStr = name.Split('.')[1];
+    string classStr = name.Split('.')[0].Trim();
+    string varStr = name.Split('.')[1].Trim();
     string path = Application.dataPath + "/Mono.cs";
     if (File.Exists(path)) {
       string currentClass = "";
@@ -45,7 +45,7 @@ public static class Design {
           string[] words = line.Split(' ');
           for (int i = 0; i < words.Length; i++) {
             if (words[i] == "class") {
-              currentClass = words[i + 1];
+              currentClass = words[i + 1].Trim();
             }
           }
         }
@@ -58,7 +58,6 @@ public static class Design {
                 string w = words[i + 1];
                 w = w.Replace(';', ' ');
                 w = w.Replace('"', ' ');
-                w = w.Replace('f', ' ');
                 return w.Trim();
               }
             }
@@ -69,6 +68,4 @@ public static class Design {
 
     return "";
   }
-
-
 }
