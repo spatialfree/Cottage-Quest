@@ -208,19 +208,100 @@ public class Mono : MonoBehaviour {
 		while (telling) {
 			switch (day) {
 				case 0:
-					mono.textPanel.Display("day 0", "dream cutscenes are what william dreams about each night.");
+					mono.textPanel.Display("day 0", "(dream) cutscenes are what william dreams about each night.");
 					yield return new WaitUntil(() => next); next = false;
-					day++;
+					mono.textPanel.Display("day 0", "player wakes up when the dream sequences is over");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 0", "Inside events are things that happen inside the cottage that the player has to complete before an outside event can happen.");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 0", "Outside events are things that happen right outside the cottage that the player can see from the peek hole of the front door. This must happen before the player can go back to sleep again.");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 0", "About Sleeping- The player isnt forced to go to bed after the outside event. They can do other activities around the house if they want before they go to sleep.");
+					yield return new WaitUntil(() => next); next = false;
 
+					day++;
 					break;
 				case 1:
+					mono.textPanel.Display("day 1", "(Dream) Player dreams of approaching doom and terror and is shown lord Tyvus talking to his advisor about summoning pure evil. Tyvus asks his advisor, Hows the girl? We need her to be strong for the ritual.");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 1", "awake");
+					yield return new WaitUntil(() => next); next = false;
 					mono.textPanel.Display("day 1", "mom wakes you up and says you must have been dreaming and that she has to go to the market now that your fathers dead.");
 					yield return new WaitUntil(() => next); next = false;
-					day++;
+					mono.textPanel.Display("day 1", "Player tries front door but its locked.");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 1", "Inside Event: A bat comes from the chimney that you fight.");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 1", "Outside Event: Later your house is shaken by explosions. Outside the door you see people fleeing. Theyre shouting that Lord Tyvuss men have taken the town. ");
+					yield return new WaitUntil(() => next); next = false;
 					
+					day++;
+					break;
+				case 2:
+					mono.textPanel.Display("day 2", "Dream: You dream of a princess, she has a bird in the dream, she asks you to save her");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 2", "awake");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 2", "Inside Event: Knock down spider webs that have appeared. Fight spiders that come out.");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 2", "Outside Event: A very small boy named Timmy comes to the door asking to be let in because hes cold and he lost his whole family. But you say you cant unlock the door and Timmy walks away. Some hero you are.");
+					yield return new WaitUntil(() => next); next = false;
+					
+					day++;
+					break;
+				case 3:
+					mono.textPanel.Display("day 3", "Dream: You dream that Lord Tyvus is having a conversation with his advisor who is saying that theres a young man that destiny shows will defeat him. Lord Tyvus says thats nonsense.");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 3", "awake");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 3", "Inside Event: Theres piles of sand/dust you have to hit and dust bunnies come out that you have to battle");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 3", "Outside Event: Knock on the door, theres a party of adventurers thats formed to defeat Lord Tyvus but you say you cant unlock the door. They say, have you found a key? And you say, I dont have one. They say, damn, thats too bad and leave.");
+					yield return new WaitUntil(() => next); next = false;
+					
+					day++;
+					break;
+				case 4:
+					mono.textPanel.Display("day 4", "Dream: You dream that your dad has left you a sword to go defeat the great evil. (This can happen in the cottage somewhere)");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 4", "awake");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 4", "Inside Event: You wake up to a smell. You have to fight rotten food has come from the garbage pail");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 4", "Outside Event: A traveling merchant comes to the door. May I offer you any wares. He has a lock pick. He says hell sell it to you for 5 gold (but you dont earn/ have any gold). You say you dont have any gold, he says thats too bad and leaves.");
+					yield return new WaitUntil(() => next); next = false;
+					
+					day++;
+					break;
+				case 5:
+					mono.textPanel.Display("day 5", "Dream: You dream that lord Tyvus is performing a ritual. Hes talking to the princess who is strapped to a table saying that the time of summoning is near and that no one will save her from her fate.");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 5", "awake");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 5", "Inside Event: You wake up to a bunch of fireballs in the house, you must have left the stove on! You have to fight the fireballs.");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 5", "Outside Event: The bird that youve seen in the princesss dream is at the front door? It says the final battle is approaching and you must hurry. But you say you cant because the door is locked and the bird flies away. Some hero you are!");
+					yield return new WaitUntil(() => next); next = false;
+					
+					day++;
+					break;
+				case 6:
+					mono.textPanel.Display("day 6", "Dream: You dream of blackness with some flashes and sounds of an epic battle (This will be some type of pixel art montage rather than game maps)");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 6", "awake");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 6", "Outside Event: You wake up to a parade. People are chanting that Lord Tyvus has been defeated. Theyre shouting long live King Timmy!");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 6", "You walk away from the door slowly and look around the house.");
+					yield return new WaitUntil(() => next); next = false;
+					mono.textPanel.Display("day 6", "Your mom comes in through the front door. Mom: …huff…huff…my son, Ive made it home. Tyvuss was conquered by the Robinsons boys down the road. He always was such a nice young man. [looks around] Look what youve done to the place, its all a mess! She looks around.  Anyway, Im just glad youre ok. But, I have to ask why didnt you join the others in the fight? Why didnt you come looking for me?  What do you mean, the key is right here where it always is…(But of course its on the lower wall where the player cant see it) Lets get this place cleaned up and ready us some supper.");
+					yield return new WaitUntil(() => next); next = false;
+					
+					day++;
 					break;
 				default:
 					mono.textPanel.Display("null", "beyond the days alloted!");
+					
 					telling = false;
 					break;
 			}
