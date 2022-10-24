@@ -167,8 +167,38 @@ public class Mono : MonoBehaviour {
   }
 }
 
-[Serializable]
-public class Story {
+[Serializable] public class Story {
+	// render characters by GetTexture(name)
+	public Character[] characters = new Character[] {
+		new Character { 
+			name = "William", 
+			desc = "Main character of the game controlled by the player. Hes a young farmboy of 17.",
+		},
+		new Character {
+			name = "Mom",
+			desc = "Williams mom",
+		},
+		new Character {
+			name = "Lord Tyvus",
+			desc = "Main antogonist",
+		},
+		new Character {
+			name = "Counselor",
+			desc = "The counselor of Lord Tyvus",
+		},
+		new Character {
+			name = "Princess Ruby",
+			desc = "Damsel in Distress",
+		},
+		new Character {
+			name = "Bird",
+			desc = "Princess Rubys pet bird",
+		},
+		new Character {
+			name = "Timmy",
+			desc = "Neighbor's young kid",
+		},
+	};
 	int day = 0;
 	public bool next = false;
 	public IEnumerator Tell() {
@@ -198,8 +228,7 @@ public class Story {
 	}
 }
 
-[Serializable]
-public class TextPanel {
+[Serializable] public class TextPanel {
 	public bool visible;
 	public TextMeshProUGUI textBox;
 	public string from, text;
@@ -254,8 +283,12 @@ public class TextPanel {
 	}
 }
 
-[Serializable]
-public class Player {
+[Serializable] public class Character {
+	public string name, desc;
+	public Texture texture;
+}
+
+[Serializable] public class Player {
 
   public Vector3 pos, lastPos;
 
@@ -354,7 +387,6 @@ public class Player {
   public Texture texture;
 }
 
-
 public static class Tools {
   static Matrix4x4 matrix = new Matrix4x4();
   static MaterialPropertyBlock props = new MaterialPropertyBlock();
@@ -387,8 +419,7 @@ public static class Tools {
   }
 }
 
-[Serializable]
-public class PID {
+[Serializable] public class PID {
   public float p, i;
   float integral = 0f;
   float value = 0f;
