@@ -1,13 +1,21 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class Mono : MonoBehaviour {
-
   static public Mono Inst { get; private set; }
 
-  public Story story;
+  public Vector3 manCam;
+  Vector3 manCamSmooth;
+  public bool man;
+  bool oldMan;
+  float manT;
+
+	[Header("Classes")]
+	public Story story;
+	public TextPanel textPanel;
   public Player player;
 
   [Header("References")]
@@ -16,6 +24,7 @@ public class Mono : MonoBehaviour {
 
   [Header("New References")]
   public Texture2D cottageTex;
+  public Texture2D castleTex;
 
   public Material matCurtain;
   public Vector3 hallCurtain;
@@ -38,6 +47,7 @@ public class Mono : MonoBehaviour {
   }
 
   void Start() {
+		StartCoroutine(story.Tell());
     player.Start();
   }
 
@@ -47,10 +57,23 @@ public class Mono : MonoBehaviour {
     sync = firstFrame || Input.GetMouseButton(0);
     Sync();
 
-    // story.Update();
+		textPanel.Update();
     player.Update();
 
-    
+
+    manT = Mathf.Clamp01(manT + Time.deltaTime / 9f);
+    if (man != oldMan) {
+      manT = 0;
+      oldMan = man;
+    }
+
+    Vector3 toSmooth = Vector3.Lerp(manCamSmooth, manCam, camCurve.Evaluate(manT));
+    Vector3 fromSmooth = Vector3.Lerp(manCamSmooth, Vector3.zero, camCurve.Evaluate(manT));
+    manCamSmooth = man ? toSmooth : fromSmooth;
+
+    // textPanel.visible = Vector3.Distance(manCamSmooth, manCam) < 0.1f;
+
+
     Vector3 thresholdPos = new Vector3(64, 522, 0);
 
     if (player.pos.x < thresholdPos.x) {
@@ -93,6 +116,7 @@ public class Mono : MonoBehaviour {
 
 
     cottageTex.Pixelgon(Vector3.forward, Vector3.one);
+    castleTex.Pixelgon(Vector3.forward + new Vector3(-1000, 0, 0), Vector3.one);
 
 
 
@@ -105,33 +129,26 @@ public class Mono : MonoBehaviour {
     camT = Mathf.Clamp01(camT + Time.deltaTime / 3f);
     camPos = Vector3.Lerp(camPos, camRawPos, camCurve.Evaluate(camT));
 
-    cam.position = camPos + new Vector3(0, 0, -20);
+    cam.position = camPos + manCamSmooth + new Vector3(0, 0, -20);
 
     // pixel perfect (constant size)
     int height = Screen.height;
     Camera.main.orthographicSize = height / 4;
 
 
-    
-
-
-    // attempt at easy clean gif capture
-    if (Input.GetKey(KeyCode.Space)) {
-      if (captureIndex < 128) {
-        if (otherFrame) {
-          ScreenCapture.CaptureScreenshot("Content/" + captureIndex.ToString("0000") + ".png");
-          captureIndex++;
-        }
-        otherFrame = !otherFrame;
-      } 
-      else if (Input.GetKeyDown(KeyCode.Space)) {
-        captureIndex = 0;
-      }
-    }
-
-
-
-
+    // // attempt at easy clean gif capture
+    // if (Input.GetKey(KeyCode.Space)) {
+    //   if (captureIndex < 128) {
+    //     if (otherFrame) {
+    //       ScreenCapture.CaptureScreenshot("Content/" + captureIndex.ToString("0000") + ".png");
+    //       captureIndex++;
+    //     }
+    //     otherFrame = !otherFrame;
+    //   } 
+    //   else if (Input.GetKeyDown(KeyCode.Space)) {
+    //     captureIndex = 0;
+    //   }
+    // }
 
     player.Render();
 
@@ -152,35 +169,89 @@ public class Mono : MonoBehaviour {
 
 [Serializable]
 public class Story {
-  public TextMeshProUGUI textBox;
-  public string testString;
+	int day = 0;
+	public bool next = false;
+	public IEnumerator Tell() {
+		Mono mono = Mono.Inst;
 
-  char[] punctuation = { ',', '.', '!', '?' };
-  int index = 0;
-  float time = 0;
-  public void Update() {
-    string text = testString;
-    if (Input.GetKey(KeyCode.Space)) {
-      time -= Time.deltaTime;
-      if (time < 0) {
-        time = text[index] == ' ' ? 0.01f : 0.05f;
-        foreach (char p in punctuation) {
-          if (text[index] == p) {
-            time += 1f;
-            break;
-          }
-        }
+		bool telling = true;
+		while (telling) {
+			switch (day) {
+				case 0:
+					mono.textPanel.Display("day 0", "dream cutscenes are what william dreams about each night.");
+					yield return new WaitUntil(() => next); next = false;
+					day++;
 
-        index = index + 1 >= text.Length ? index : index + 1;
-      }
-    }
+					break;
+				case 1:
+					mono.textPanel.Display("day 1", "mom wakes you up and says you must have been dreaming and that she has to go to the market now that your fathers dead.");
+					yield return new WaitUntil(() => next); next = false;
+					day++;
+					
+					break;
+				default:
+					mono.textPanel.Display("null", "beyond the days alloted!");
+					telling = false;
+					break;
+			}
+		}
+	}
+}
 
-    if (index < text.Length - 1) {
-      text = text.Insert(index, "<color=#00000000>");
-      text = text.Insert(text.Length, "</color>");
-    }
-    textBox.text = text;
-  }
+[Serializable]
+public class TextPanel {
+	public bool visible;
+	public TextMeshProUGUI textBox;
+	public string from, text;
+	public GameObject textArrow;
+
+	public void Display(string from, string text) {
+		this.from = from;
+		this.text = text;
+		index = 0;
+		time  = 0;
+		visible = true;
+	}
+
+	char[] punctuation = { ',', '.', '!', '?' };
+	int index = 0;
+	float time = 0;
+	public void Update()
+	{
+		GameObject panel = textBox.transform.parent.gameObject;
+		if (panel.activeSelf != visible){
+			panel.SetActive(visible);
+		}
+
+		string text = this.text;
+		if (Input.GetKey(KeyCode.Space))
+		{
+			time -= Time.deltaTime;
+			if (time < 0)
+			{
+				time = text[index] == ' ' ? 0.01f : 0.05f;
+				foreach (char p in punctuation)
+				{
+					if (text[index] == p)
+					{
+						time += 1f;
+						break;
+					}
+				}
+
+				index = index + 1 >= text.Length ? index : index + 1;
+			}
+		}
+
+		if (index < text.Length - 1)
+		{
+			text = text.Insert(index, "<color=#00000000>");
+			text = text.Insert(text.Length, "</color>");
+		}
+		textBox.text = from + ": " + text;
+
+		textArrow.SetActive(!(index < text.Length - 1) && Mathf.Sin(Time.time * 2) > 0);
+	}
 }
 
 [Serializable]
